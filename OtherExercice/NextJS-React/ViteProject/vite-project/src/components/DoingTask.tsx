@@ -18,7 +18,7 @@ export const DoingTask = () => {
     const {task, setTask, setResult} = useTasks();
 
     // Timer state
-    const [elapsedSeconds, setElapsedSeconds] = useState(0);
+    const [elapsedSeconds, setElapsedSeconds] = useState(60);
     const [isRunning, setIsRunning] = useState(false);
     const intervalRef = useRef<number | null>(null);
 
@@ -59,7 +59,7 @@ export const DoingTask = () => {
     }
 
     const restartTimer = () => {
-        setElapsedSeconds(0);
+        setElapsedSeconds(60);
     }
 
     // Cleanup interval on unmount
