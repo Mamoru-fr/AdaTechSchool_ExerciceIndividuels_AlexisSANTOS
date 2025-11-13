@@ -14,7 +14,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div className="bg-red-500 gap-4 p-4 text-white flex justify-center xl:text-2xl">
-          <Link href="/">Home</Link> | <Link href="/about">About</Link>
+          <Link href="/">Home</Link> | <Link href="/posts">Posts</Link>
         </div>
         {children}
       </body>
