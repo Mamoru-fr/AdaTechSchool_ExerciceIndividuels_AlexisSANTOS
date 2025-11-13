@@ -22,17 +22,6 @@ export const AllPosts = ({refreshKey = 0}: AllPostsProps) => {
   }, [refreshKey]);
   console.log(posts);
 
-  const deletePost = (e: React.MouseEvent, id: number) => {
-    e.stopPropagation(); // Prevent click from bubbling to parent <li>
-    if (confirm('Are you sure you want to delete this post?')) {
-      fetch(`http://localhost:3002/api/posts/${id}`, {
-        method: 'DELETE'
-      }).then(() => {
-        refreshPosts();
-      });
-    }
-  }
-
   return <div className="container mx-auto px-4 py-8 max-w-4xl">
     <h1 className="text-4xl font-bold mb-8 text-gray-800">All Posts</h1>
     <ul className="space-y-4">
@@ -42,12 +31,6 @@ export const AllPosts = ({refreshKey = 0}: AllPostsProps) => {
             <div className="flex-1">
               <h2 className="text-2xl font-semibold text-gray-900">{post.title}</h2>
             </div>
-            <button 
-              onClick={(e) => deletePost(e, post.id)}
-              className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md transition-colors duration-200 shrink-0 zindex-10" style={{'cursor' : 'pointer'}}
-            >
-              Delete
-            </button>
           </div>
         </li>
       ))}

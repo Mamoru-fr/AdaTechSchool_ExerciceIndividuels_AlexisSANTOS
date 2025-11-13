@@ -1,5 +1,6 @@
 'use client';
 
+import {AllComments} from "@/components/AllComments";
 import {useRouter} from "next/navigation";
 import React, {useEffect, useState} from "react";
 
@@ -13,7 +14,7 @@ type postType = {
 export default function PostPage({params}: {params: Promise<{id: string}>}) {
     const router = useRouter();
     const [post, setPost] = useState<postType | null>(null);
-    const { id } = React.use(params);
+    const {id} = React.use(params);
     const idNumber = Number(id);
     console.log("This is the post with the id: ", id);
 
@@ -31,20 +32,6 @@ export default function PostPage({params}: {params: Promise<{id: string}>}) {
             });
     }, [idNumber]);
 
-    const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this post?')) {
-            fetch(`http://localhost:3002/api/posts/${id}`, {
-                method: 'DELETE'
-            })
-            .then(() => {
-                router.push('/posts');
-            })
-            .catch(error => {
-                console.error('Error deleting post:', error);
-            });
-        }
-    };
-
     if (!post) {
         return <div style={{padding: '2rem', textAlign: 'center'}}>Loading...</div>;
     }
@@ -52,54 +39,57 @@ export default function PostPage({params}: {params: Promise<{id: string}>}) {
     console.log('This is my post : ', post);
 
     return (
-        <div style={styles.container}>
-            <article style={styles.article}>
-                {/* Header Section */}
-                <div style={styles.header}>
-                    <h1 style={styles.title}>
-                        {post.title}
-                    </h1>
-                    <div style={styles.dateContainer}>
-                        <svg style={styles.dateIcon} fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                        </svg>
-                        <time style={styles.dateText}>
-                            {new Date(post.createdAt).toLocaleDateString('fr-FR', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}
-                        </time>
-                    </div>
-                </div>
-
-                {/* Content Section */}
-                <div style={styles.content}>
-                    <p style={styles.contentText}>
-                        {post.content}
-                    </p>
-                </div>
-
-                {/* Footer Section */}
-                <div style={styles.footer}>
-                    <div style={styles.footerContainer}>
-                        <button style={styles.backButton} onClick={() => router.push('/posts')}>
-                            <svg style={styles.backIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        <>
+            <div style={styles.container}>
+                <article style={styles.article}>
+                    {/* Header Section */}
+                    <div style={styles.header}>
+                        <h1 style={styles.title}>
+                            {post.title}
+                        </h1>
+                        <div style={styles.dateContainer}>
+                            <svg style={styles.dateIcon} fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                             </svg>
-                            Back to Posts
-                        </button>
-                        <div style={styles.buttonGroup}>
-                            <button style={styles.deleteButton} onClick={handleDelete}>
-                                Delete
+                            <time style={styles.dateText}>
+                                {new Date(post.createdAt).toLocaleDateString('fr-FR', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </time>
+                        </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div style={styles.content}>
+                        <p style={styles.contentText}>
+                            {post.content}
+                        </p>
+                    </div>
+
+                    {/* Footer Section */}
+                    <div style={styles.footer}>
+                        <div style={styles.footerContainer}>
+                            <button style={styles.backButton} onClick={() => router.push('/posts')}>
+                                <svg style={styles.backIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                                Back to Posts
                             </button>
                         </div>
                     </div>
+                </article>
+                <div>
+                    {/* Comments Section */}
+                    {/* Assuming AllComments component is imported */}
+                    <AllComments refreshKey={0} id={idNumber} />
                 </div>
-            </article>
-        </div>
+            </div>
+        </>
+
     );
 }
 
@@ -111,8 +101,8 @@ const styles = {
         padding: '3rem 1rem',
     },
     article: {
-        maxWidth: '56rem',
         margin: '0 auto',
+        marginBottom: '3rem',
         backgroundColor: 'white',
         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
         borderRadius: '0.5rem',
