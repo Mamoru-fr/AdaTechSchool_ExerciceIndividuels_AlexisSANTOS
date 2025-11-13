@@ -7,3 +7,14 @@ export async function GET() {
     console.log('User data : ', userData);
     return new Response(JSON.stringify(userData));
 }
+
+export async function POST(request: Request) {
+    const reqBody = await request.json();
+    const newUser = {
+        username: reqBody.username,
+        email: reqBody.email,
+    };
+    const insertedUser = await db.insert(users).values(newUser).returning();
+    console.log('New user added : ', insertedUser);
+    return new Response(JSON.stringify(insertedUser));
+}
