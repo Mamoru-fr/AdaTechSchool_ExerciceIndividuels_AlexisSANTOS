@@ -12,7 +12,10 @@ export const AllPosts = ({refreshKey = 0}: AllPostsProps) => {
   const router = useRouter();
 
   const refreshPosts = () => {
-    fetch('http://localhost:3002/api/posts').then(res => res.json()).then(data => setPosts(data)).then(data => {
+    fetch('http://localhost:3002/api/posts')
+    .then(res => res.json())
+    .then(data => setPosts(data))
+    .then((data) => {
       console.log('Posts fetched from API: ', data)
     });
   }

@@ -37,7 +37,7 @@ export async function DELETE(
     return Response.json({ 
         success: true, 
         deleted: result.changes,
-        message: `Deleted ${result.changes} user(s)` 
+        message: `Deleted ${result.changes} comment(s)` 
     });
 }
 

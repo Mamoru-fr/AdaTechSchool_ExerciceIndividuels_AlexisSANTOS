@@ -1,8 +1,9 @@
 'use client';
 
-import {AllComments} from "@/components/AllComments";
-import {useRouter} from "next/navigation";
 import React, {useEffect, useState} from "react";
+import {useRouter} from "next/navigation";
+import {AllComments} from "@/components/AllComments";
+import ModifyPostsPopup from "@/components/ModifyPostsPopup";
 
 type postType = {
     id: number;
@@ -14,9 +15,41 @@ type postType = {
 export default function PostPage({params}: {params: Promise<{id: string}>}) {
     const router = useRouter();
     const [post, setPost] = useState<postType | null>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [isDeleted, setIsDeleted] = useState(false);
     const {id} = React.use(params);
     const idNumber = Number(id);
     console.log("This is the post with the id: ", id);
+
+    const handleSubmit = async (title: string, content: string) => {
+        console.log('📝 Update the post with ID:', idNumber);
+        try {
+            const response = await fetch(`/api/posts/${idNumber}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({title, content})
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Post updated successfully:', data);
+                
+                // Update the local post state to reflect changes
+                setPost({
+                    ...post!,
+                    title,
+                    content
+                });
+                
+                // Close the popup
+                setIsOpen(false);
+            } else {
+                console.error('❌ Failed to update post:', response.status);
+            }
+        } catch (error) {
+            console.error('❌ Error updating post:', error);
+        }
+    };
 
     useEffect(() => {
         fetch(`http://localhost:3002/api/posts/${idNumber}`)
@@ -32,6 +65,12 @@ export default function PostPage({params}: {params: Promise<{id: string}>}) {
             });
     }, [idNumber]);
 
+    useEffect(() => {
+        if (isDeleted) {
+            router.push('/posts');
+        }
+    }, [isDeleted, router]);
+
     if (!post) {
         return <div style={{padding: '2rem', textAlign: 'center'}}>Loading...</div>;
     }
@@ -43,23 +82,39 @@ export default function PostPage({params}: {params: Promise<{id: string}>}) {
             <div style={styles.container}>
                 <article style={styles.article}>
                     {/* Header Section */}
-                    <div style={styles.header}>
-                        <h1 style={styles.title}>
-                            {post.title}
-                        </h1>
-                        <div style={styles.dateContainer}>
-                            <svg style={styles.dateIcon} fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                            </svg>
-                            <time style={styles.dateText}>
-                                {new Date(post.createdAt).toLocaleDateString('fr-FR', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
-                            </time>
+                    <div>
+                        <div style={styles.header}>
+                            <div>
+                                <h1 style={styles.title}>
+                                    {post.title}
+                                </h1>
+                                <div style={styles.dateContainer}>
+                                    <svg style={styles.dateIcon} fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                                    </svg>
+                                    <time style={styles.dateText}>
+                                        {new Date(post.createdAt).toLocaleDateString('fr-FR', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </time>
+                                </div>
+                            </div>
+                            <div style={styles.buttonGroup}>
+                                <button
+                                    style={styles.editButton}
+                                    onClick={() => {
+                                        // TODO: Navigate to edit page or open edit modal
+                                        console.log('Edit post:', idNumber);
+                                        setIsOpen(true);
+                                    }}
+                                >
+                                    ✏️
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -87,6 +142,14 @@ export default function PostPage({params}: {params: Promise<{id: string}>}) {
                     {/* Assuming AllComments component is imported */}
                     <AllComments refreshKey={0} id={idNumber} />
                 </div>
+                {isOpen && post && (
+                    <ModifyPostsPopup 
+                    isOpen={true} 
+                    setIsDeleted={setIsDeleted}
+                    onClose={() => {setIsOpen(false)}} 
+                    post={post} 
+                    onSubmit={handleSubmit} />)
+                }
             </div>
         </>
 
@@ -111,6 +174,12 @@ const styles = {
     header: {
         background: 'linear-gradient(to right, #2563eb, #1e40af)',
         padding: '3rem 2rem',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row' as const,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '1.5rem',
     },
     title: {
         fontSize: '3rem',
@@ -170,11 +239,11 @@ const styles = {
         display: 'flex',
         gap: '0.75rem',
     },
-    deleteButton: {
-        backgroundColor: '#dc2626',
-        color: 'white',
+    editButton: {
+        backgroundColor: '#f5f242EA',
+        maxHeight: '2.5rem',
         padding: '0.5rem 1.5rem',
-        borderRadius: '0.375rem',
+        borderRadius: '0.75rem',
         fontWeight: '600' as const,
         transition: 'background-color 0.2s',
         cursor: 'pointer',

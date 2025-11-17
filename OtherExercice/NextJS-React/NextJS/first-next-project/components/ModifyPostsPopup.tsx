@@ -1,23 +1,49 @@
-import React, { useState } from 'react';
+import {is} from 'drizzle-orm';
+import React, {useState} from 'react';
 
-interface CreatePostsPopupProps {
+interface ModifyPostsPopupProps {
     isOpen: boolean;
+    setIsDeleted: React.Dispatch<React.SetStateAction<boolean>>;
     onClose: () => void;
     onSubmit: (title: string, content: string) => void;
+    post: {
+        id: number;
+        title: string;
+        content: string;
+    };
 }
 
-export default function CreatePostsPopup({ isOpen, onClose, onSubmit }: CreatePostsPopupProps) {
-    const [title, setTitle] = useState<string>('');
-    const [content, setContent] = useState<string>('');
+export default function ModifyPostsPopup({isOpen, onClose, onSubmit, post, setIsDeleted}: ModifyPostsPopupProps) {
+    const [title, setTitle] = useState<string>(post.title);
+    const [content, setContent] = useState<string>(post.content);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (title.trim() && content.trim()) {
             onSubmit(title, content);
-            setTitle('');
-            setContent('');
             onClose();
         }
+    };
+
+    const handleDelete = () => {
+        
+        fetch(`/api/posts/${post.id}`, {
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json'},
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then(data => {
+            console.log('Post deleted successfully:', data);
+        }).catch(error => {
+            console.error('Error deleting post:', error);
+        });
+
+        console.log('Post deleted');
+        setIsDeleted(true);
+        onClose();
     };
 
     if (!isOpen) return null;
@@ -34,7 +60,7 @@ export default function CreatePostsPopup({ isOpen, onClose, onSubmit }: CreatePo
                         &times;
                     </button>
                 </div>
-                
+
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label htmlFor="title" className="block text-sm font-medium mb-2">
@@ -65,23 +91,39 @@ export default function CreatePostsPopup({ isOpen, onClose, onSubmit }: CreatePo
                         />
                     </div>
 
-                    <div className="flex justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                        >
-                            Create Post
-                        </button>
+                    <div className="flex justify-between gap-3">
+                        <div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    handleDelete();
+                                    console.log('Delete post');
+                                }}
+                                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 mr-2"
+                            >
+                                Delete Post
+                            </button>
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                            >
+                                Update Post
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
     );
+
 }
+
