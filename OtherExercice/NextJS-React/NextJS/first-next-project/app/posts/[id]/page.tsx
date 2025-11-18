@@ -52,7 +52,7 @@ export default function PostPage({params}: {params: Promise<{id: string}>}) {
     };
 
     useEffect(() => {
-        fetch(`http://localhost:3002/api/posts/${idNumber}`)
+        fetch(`/api/posts/${idNumber}`)
             .then(res => res.json())
             .then(data => {
                 console.log('Raw API response:', data);

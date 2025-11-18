@@ -12,7 +12,7 @@ export const AllPosts = ({refreshKey = 0}: AllPostsProps) => {
   const router = useRouter();
 
   const refreshPosts = () => {
-    fetch('http://localhost:3002/api/posts')
+    fetch('/api/posts')
     .then(res => res.json())
     .then(data => setPosts(data))
     .then((data) => {

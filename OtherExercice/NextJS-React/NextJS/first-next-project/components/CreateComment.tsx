@@ -14,7 +14,7 @@ export function CreateComment({postId, refreshComments}: CreateCommentProps) {
         e.preventDefault();
         if (content.trim() !== '') {
             try {
-                const response = await fetch(`http://localhost:3002/api/comments`, {
+                const response = await fetch(`/api/comments`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({postId, content})

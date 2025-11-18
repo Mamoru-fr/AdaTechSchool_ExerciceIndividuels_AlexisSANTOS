@@ -22,7 +22,7 @@ export const AllComments = ({refreshKey = 0, id}: AllCommentsProps) => {
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 
   const refreshComments = () => {
-    fetch(`http://localhost:3002/api/comments/posts/${id}`)
+    fetch(`/api/comments/posts/${id}`)
       .then(res => res.json())
       .then(data => setComments(data))
       .catch(error => {
@@ -44,7 +44,7 @@ export const AllComments = ({refreshKey = 0, id}: AllCommentsProps) => {
 
   const handleSaveEdit = (commentId: number, newContent: string) => {
     // Update comment via API
-    fetch(`http://localhost:3002/api/comments/${commentId}`, {
+    fetch(`/api/comments/${commentId}`, {
       method: 'PUT',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({content: newContent})
@@ -61,7 +61,7 @@ export const AllComments = ({refreshKey = 0, id}: AllCommentsProps) => {
 
   const handleDeleteComment = (commentId: number) => {
     // Delete comment via API
-    fetch(`http://localhost:3002/api/comments/${commentId}`, {
+    fetch(`/api/comments/${commentId}`, {
       method: 'DELETE',
     })
     .then(res => res.json())
